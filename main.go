@@ -48,7 +48,7 @@ func Verbosity(v int) option {
 	}
 }
 
-// SetTimeout sets Foo's verbosity level to v.
+// SetTimeout sets to time out using ParseDuration
 func SetTimeout(t string) option {
 	timeout, _ := time.ParseDuration(t)
 	return func(f *Foo) {
