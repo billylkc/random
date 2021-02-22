@@ -5,12 +5,30 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
+type Quandl struct {
+	token     string
+	limit     int
+	startDate string // e.g. 2019-01-01
+	endDate   string
+	order     string
+}
+
+type option func(*Quandl)
+
 func main() {
-	result, err := GetHistoricalPrice(5)
+
+	quandl := New()
+	quandl.Option(SetLimit(10))
+	quandl.Option(SetEndDate("2021-01-02"))
+	quandl.Option(SetOrder("asc"))
+
+	result, err := quandl.GetHistoricalPrice(5)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -32,10 +50,26 @@ type HistoricalPrice struct {
 	} `json:"dataset_data"`
 }
 
-func GetHistoricalPrice(code int) (HistoricalPrice, error) {
+func New() Quandl {
+
+	token, err := getQuanToken()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	return Quandl{
+		limit:     100,
+		token:     token,
+		startDate: "2015-01-01",                    // Hard code for now, as there is a row limit for api call
+		endDate:   time.Now().Format("2006-01-02"), // Default for today, in yyyy-mm-dd format
+		order:     "desc",
+	}
+}
+
+func (q *Quandl) GetHistoricalPrice(code int) (HistoricalPrice, error) {
 	var data HistoricalPrice
 	c := fmt.Sprintf("%05d", code)
-	endpoint, err := getQuanEndPoint("HKEX", c, "historicalPrice")
+	endpoint, err := q.getQuanEndPoint("HKEX", c, "historicalPrice")
 	resp, err := http.Get(endpoint)
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
@@ -52,21 +86,15 @@ func GetHistoricalPrice(code int) (HistoricalPrice, error) {
 }
 
 // getQuanEndPoint returns the endpoint of the api callOB
-func getQuanEndPoint(db, code, api string) (string, error) {
-
-	token, err := getQuanToken()
-	if err != nil {
-		return "", err
-	}
-
+func (q *Quandl) getQuanEndPoint(db, code, api string) (string, error) {
 	var endpoint string
 	switch api {
 	case "historicalPrice":
-		endpoint = "https://www.quandl.com/api/v3/datasets/HKEX/00005/data.json?api_key=%s&order=desc&end_date=2021-02-21&limit=5"
+		endpoint = "https://www.quandl.com/api/v3/datasets/HKEX/00005/data.json?api_key=%s&start_date=%s&end_date=%s&order=%s&limit=%d"
 	default:
 		return "", fmt.Errorf("no api endpoint - &s", api)
 	}
-	endpoint = fmt.Sprintf(endpoint, token)
+	endpoint = fmt.Sprintf(endpoint, q.token, q.startDate, q.endDate, q.order, q.limit)
 
 	return endpoint, nil
 }
@@ -84,4 +112,39 @@ func getQuanToken() (string, error) {
 func PrettyPrint(i interface{}) string {
 	s, _ := json.MarshalIndent(i, "", "\t")
 	return string(s)
+}
+
+// Option sets the options specified.
+func (q *Quandl) Option(opts ...option) {
+	for _, opt := range opts {
+		opt(q)
+	}
+}
+
+// SetLimit sets Foo's verbosity level to v.
+func SetLimit(v int) option {
+	return func(q *Quandl) {
+		q.limit = v
+	}
+}
+
+// SetEndDate sets end date for the query in yyyy-mm-dd format
+func SetEndDate(v string) option {
+	return func(q *Quandl) {
+		q.endDate = v
+	}
+}
+
+// SetStartDate sets start date for the query in yyyy-mm-dd format
+func SetStartDate(v string) option {
+	return func(q *Quandl) {
+		q.startDate = v
+	}
+}
+
+// SetOrder sets set the order of the query, e.g. asc/desc
+func SetOrder(v string) option {
+	return func(q *Quandl) {
+		q.order = v
+	}
 }
