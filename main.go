@@ -16,6 +16,11 @@ type Example struct {
 }
 
 func main() {
+	GetExample()
+}
+
+// GetExample extracts data from example.com
+func GetExample() {
 	res, err := http.Get("https://example.com/")
 	if err != nil {
 		log.Fatal(err)
