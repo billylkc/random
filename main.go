@@ -26,7 +26,7 @@ func main() {
 	quandl := New()
 	quandl.Option(SetLimit(10))
 	quandl.Option(SetEndDate("2021-01-02"))
-	quandl.Option(SetOrder("asc"))
+	quandl.Option(SetOrder("desc"))
 
 	result, err := quandl.GetHistoricalPrice(5)
 	if err != nil {
