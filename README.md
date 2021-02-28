@@ -2,4 +2,6 @@
 Random repository to test things out
 
 # Description
-blah blah blah
+Get sector overview from aastock
+
+Ref: http://www.aastocks.com/en/stocks/market/industry/industry-performance.aspx
