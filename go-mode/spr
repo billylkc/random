@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: spr
+# key: spr
+# --
+fmt.Println($1)

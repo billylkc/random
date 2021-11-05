@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: smapk
+# key: smapk
+# --
+if val, ok := $1[$2]; ok {
+     $3
+}

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: sprt
+# key: sprt
+# --
+fmt.Printf("%T\n", $1)

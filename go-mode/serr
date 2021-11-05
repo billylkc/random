@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: error
+# key: serr
+# contributor : @atotto
+# --
+if err != nil {
+   ${0:fmt.Println(err.Error())}
+}

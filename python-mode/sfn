@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: function_docstring
+# key: sfn
+# group: definitions
+# NOTE: Use minimum indentation, because Emacs 25+ doesn't dedent docstrings.
+# --
+def ${1:name}($2):
+    \"\"\"
+    ${3:Some description}
+
+    Args:
+        ${2:arg} (str):
+
+    Returns:
+        ${4:res} (str):
+
+    Example:
+        $4 = $1($2)
+    \"\"\"
+
+    $0

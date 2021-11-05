@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: today in string
+# key: stoday
+# --
+time.Now().Format("2006-01-02")

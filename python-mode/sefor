@@ -1,0 +1,6 @@
+# name: for ... in ... : ...
+# key: sefor
+# group : control structure
+# --
+for ${1:idx}, ${2:val} in enumerate(${3:list}):
+    print("index is %s and value is %s" % ($1, $2))

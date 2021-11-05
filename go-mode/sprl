@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: sprl
+# key: sprl
+# contributor : @atotto
+# --
+fmt.Println($1)

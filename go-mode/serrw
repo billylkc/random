@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: errorw
+# key: serrw
+# contributor : @atotto
+# --
+if err != nil {
+   return nil, errors.Wrap(err, ${0:"something's wrong"})
+}

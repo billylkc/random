@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Dummy dataframe
+# key: sddf
+# group : dataframe
+# --
+df = pd.DataFrame({'A': ['a', 'b', 'a'],
+     		   'B': ['b', 'a', 'c'],
+                   'C': [1, 2, 3]})
+df.head()

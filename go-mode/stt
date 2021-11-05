@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Simple block test
+# key: stt
+# --
+{
+    name: "Simple test",
+    args: args{
+        current: 10.2,
+        prev:    11.2,
+    },
+    want: -8.93,
+},

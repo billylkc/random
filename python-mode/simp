@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: from ... import ...
+# key: sfimp
+# group : general
+# --
+from ${1:lib} import ${2:fun}
+$0

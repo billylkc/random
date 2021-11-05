@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: ifmain
+# key: sifm
+# --
+def main():
+    print("Main")
+
+
+if __name__ == '__main__':
+    ${1:main()}

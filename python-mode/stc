@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Try Catch
+# key: stc
+# group : general
+# --
+try:
+    $1
+except $2 as e:
+    $3

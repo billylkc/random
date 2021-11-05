@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: func main
+# key: sifm
+# contributor : @atotto
+# --
+package main
+
+import (
+       "fmt"
+)
+
+func main() {
+	${0:fmt.Println("main")}
+}
