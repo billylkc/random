@@ -1,0 +1,187 @@
+#+STARTUP: content
+#+REVEAL_ROOT: https://cdn.jsdelivr.net/npm/reveal.js
+#+REVEAL_HLEVEL:1
+#+REVEAL_INIT_OPTIONS: transition: 'none'
+#+REVEAL_THEME: night
+#+REVEAL_PLUGINS: (highlight)
+#+REVEAL_MIN_SCALE: 0.5
+#+REVEAL_MAX_SCALE: 0.5
+#+HTML_HEAD: <style>.reveal p {text-align: left;} .reveal .slides {text-align: left;} </style>
+#+HTML_HEAD: <style> .reveal h1, .reveal h2 {font-size: 45px;} .reveal h3, .reveal h4, .reveal h5, .reveal h6 {font-size: 30px;} </style>
+#+HTML_HEAD: <style> span.orange { color: orange; } span.purple { color: #6600CC; } span.red { color: #CC0000; } span.write { color: #FFFFFF; } span.lightpurple { color: #CC99CC; } span.darkpurple { color: #660066; } span.bold { font-weight: bold; } </style>
+#+HTML_HEAD_EXTRA: <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.0.1/highlight.min.js" integrity="sha512-W7EehcwtSbRF63FIQlXEOOd5mnq0Et0V0nUOvwcUvjnCKgOLLYbqriQxEQSp63sfrkryxIg/A/O8v8O18QwQCQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+#+HTML_HEAD_EXTRA: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlightjs-themes@1.0.0/monokai_sublime.css"/>
+#+OPTIONS: reveal_title_slide:nil
+#+OPTIONS: num:nil
+#+OPTIONS: toc:nil
+
+#+BEGIN_EXPORT html
+<script type="text/javascript">
+window.onload=function(){
+  Reveal.initialize({
+    center: false,
+  });
+}
+</script>
+#+END_EXPORT
+* Table of Content
+#+REVEAL_HTML: <div style="font-size: 50%;">
+
+  - [[Drawbacks][Drawbacks]]
+    - [[No Generics][No Generics]]
+  - [[Important Binaries][Important Binaries]]
+  - [[JSON][JSON]]
+    - [[JSON][JSON]]
+    - [[Parse JSON][Parse JSON]]
+
+#+REVEAL_HTML: </div>
+* Drawbacks
+** No Generics
+
+
+* Important Binaries
+#+REVEAL_HTML: <div style="font-size: 50%;">
+\\
+
+- goimport
+- gopls
+- gofmt
+#+REVEAL_HTML: </DIV>
+
+* JSON
+#+REVEAL_HTML: <div style="font-size: 50%;">
+- [[JSON][JSON]]
+- [[Parse JSON][Parse JSON]]
+
+#+REVEAL_HTML: </div>
+
+** JSON
+#+REVEAL_HTML: <div style="font-size: 50%;">
+
+\\
+
+*Convert JSON to go struct*
+JSON-to-Go - [[https://mholt.github.io/json-to-go/][Here]]
+
+\\
+
+#+BEGIN_SRC json
+{
+  "page": 2,
+  "per_page": 6,
+  "total": 12,
+  "total_pages": 2,
+  "data": [
+    {
+      "id": 7,
+      "email": "michael.lawson@reqres.in",
+      "first_name": "Michael",
+      "last_name": "Lawson",
+      "avatar": "https://reqres.in/img/faces/7-image.jpg"
+    },
+    {
+      "id": 8,
+      "email": "lindsay.ferguson@reqres.in",
+      "first_name": "Lindsay",
+      "last_name": "Ferguson",
+      "avatar": "https://reqres.in/img/faces/8-image.jpg"
+    },
+    {
+      "id": 9,
+      "email": "tobias.funke@reqres.in",
+      "first_name": "Tobias",
+      "last_name": "Funke",
+      "avatar": "https://reqres.in/img/faces/9-image.jpg"
+    },
+    {
+      "id": 10,
+      "email": "byron.fields@reqres.in",
+      "first_name": "Byron",
+      "last_name": "Fields",
+      "avatar": "https://reqres.in/img/faces/10-image.jpg"
+    },
+    {
+      "id": 11,
+      "email": "george.edwards@reqres.in",
+      "first_name": "George",
+      "last_name": "Edwards",
+      "avatar": "https://reqres.in/img/faces/11-image.jpg"
+    },
+    {
+      "id": 12,
+      "email": "rachel.howell@reqres.in",
+      "first_name": "Rachel",
+      "last_name": "Howell",
+      "avatar": "https://reqres.in/img/faces/12-image.jpg"
+    }
+  ],
+  "support": {
+    "url": "https://reqres.in/#support-heading",
+    "text": "To keep ReqRes free, contributions towards server costs are appreciated!"
+  }
+}
+#+END_SRC
+
+#+REVEAL_HTML: </div>
+
+** Parse JSON
+#+REVEAL_HTML: <div style="font-size: 50%;">
+
+#+BEGIN_SRC go
+  package main
+
+  import (
+      "encoding/json"
+      "fmt"
+      "io/ioutil"
+      "net/http"
+  )
+  type Response struct {
+      Page       int `json:"page"`
+      PerPage    int `json:"per_page"`
+      Total      int `json:"total"`
+      TotalPages int `json:"total_pages"`
+      Data       []struct {
+          ID        int    `json:"id"`
+          ail     string `json:"email"`
+          FirstName string `json:"first_name"`
+          LastName  string `json:"last_name"`
+          Avatar    string `json:"avatar"`
+      } `json:"data"`
+      Support struct {
+          URL  string `json:"url"`
+          Text string `json:"text"`
+      } `json:"support"`
+  }
+
+  func main() {
+
+      // Get request
+      resp, err := http.Get("https://reqres.in/api/users?page=2")
+      if err != nil {
+          fmt.Println("No response from request")
+      }
+      defer resp.Body.Close()
+      body, err := ioutil.ReadAll(resp.Body) // response body is []byte
+
+      var result Response
+      if err := json.Unmarshal(body, &result); err != nil {  // Parse []byte to the go struct pointer
+          fmt.Println("Can not unmarshal JSON")
+      }
+
+
+      // Loop through the data node for the FirstName
+      for _, rec := range result.Data {
+          fmt.Println(rec.FirstName)
+      }
+  }
+
+  // PrettyPrint to print struct in a readable way
+  func PrettyPrint(i interface{}) string {
+      s, _ := json.MarshalIndent(i, "", "\t")
+      return string(s)
+  }
+#+END_SRC
+
+
+#+Reveal_HTML: </div>
