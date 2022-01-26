@@ -70,13 +70,21 @@ func GetRecords(table string) ([]HistoricalPrice, error) {
 	}
 
 	for rows.Next() {
-		var r HistoricalPrice
-		var id int
-		err = rows.Scan(id, &r.Date, &r.Ask, &r.Bid, &r.Open, &r.High, &r.Low, &r.Close, &r.Volume, &r.Turnover, &r.CodeF)
+		var (
+			r        HistoricalPrice
+			id       int
+			volume   float64
+			turnover float64
+		)
+		err = rows.Scan(&id, &r.Date, &r.Ask, &r.Bid, &r.Open, &r.High, &r.Low, &r.Close, &volume, &turnover, &r.CodeF)
 		if err != nil {
 			return records, err
 		}
 		_ = id
+		// _ = turnover
+		// _ = volume
+		r.Turnover = int(turnover)
+		r.Volume = int(volume)
 		records = append(records, r)
 	}
 
