@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -9,15 +10,28 @@ import (
 	_ "github.com/lib/pq"
 )
 
+type HistoricalPrice struct {
+	Code     int     `csv:"-"`
+	CodeF    string  `csv:"-"` // code in string format
+	Date     string  `csv:"Date"`
+	Ask      float64 `csv:"Ask"`
+	Bid      float64 `csv:"Bid"`
+	Open     float64 `csv:"Previous Close"` // open is missing in quandl, using prev close
+	High     float64 `csv:"High"`
+	Low      float64 `csv:"Low"`
+	Close    float64 `csv:"Nominal Price"`
+	Volume   int     `csv:"Share Volume (000)"`
+	Turnover int     `csv:"Turnover (000)"`
+}
+
 func main() {
 	fmt.Println("main")
 
-	bool, err := RecordExists("sector", "2022-01-25")
+	records, err := GetRecords("stock")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-
-	fmt.Println(bool)
+	fmt.Println(PrettyPrint(records))
 
 }
 
@@ -34,20 +48,39 @@ func GetConnection() (*sql.DB, error) {
 	return db, nil
 }
 
-func GetRecords(table string) error {
+func GetRecords(table string) ([]HistoricalPrice, error) {
+	var records []HistoricalPrice
 	db, err := GetConnection()
 	if err != nil {
-		return err
+		return records, err
 	}
 	queryF := `
     SELECT *
     FROM %s
-    WHERE date = '2022-01-25'`
+    WHERE date = '2022-01-25'
+    LIMIT 10
+`
 
 	query := fmt.Sprintf(queryF, table)
 	fmt.Println(query)
 
-	return nil
+	rows, err := db.Query(query)
+	if err != nil {
+		return records, err
+	}
+
+	for rows.Next() {
+		var r HistoricalPrice
+		var id int
+		err = rows.Scan(id, &r.Date, &r.Ask, &r.Bid, &r.Open, &r.High, &r.Low, &r.Close, &r.Volume, &r.Turnover, &r.CodeF)
+		if err != nil {
+			return records, err
+		}
+		_ = id
+		records = append(records, r)
+	}
+
+	return records, nil
 }
 
 func RecordExists(table, date string) (bool, error) {
@@ -76,4 +109,10 @@ func RecordExists(table, date string) (bool, error) {
 		return true, err
 	}
 	return false, nil // false as safe to insert
+}
+
+// PrettyPrint to print struct in a readable way
+func PrettyPrint(i interface{}) string {
+	s, _ := json.MarshalIndent(i, "", "\t")
+	return string(s)
 }
