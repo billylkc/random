@@ -16,28 +16,32 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type HistoricalPrice struct {
-	Code     int        `bigquery:"code"`
-	CodeF    string     `bigquery:"codef"`
-	Date     civil.Date `bigquery:"date"`
-	Ask      float64    `bigquery:"ask"`
-	Bid      float64    `bigquery:"bid"`
-	Open     float64    `bigquery:"open"`
-	High     float64    `bigquery:"high"`
-	Low      float64    `bigquery:"low"`
-	Close    float64    `bigquery:"close"`
-	Volume   int        `bigquery:"volume"`
-	Turnover int        `bigquery:"turnover"`
+type Industry struct {
+	Date      civil.Date `bigquery:"date"`
+	Sector    string     `bigquery:"sector"`
+	Industry  string     `bigquery:"industry"`
+	Code      int        `bigquery:"code"`
+	CodeF     string     `bigquery:"codef"`
+	Close     float64    `bigquery:"close"`
+	Change    float64    `bigquery:"change"`
+	ChangePct float64    `bigquery:"changepct"`
+	Volume    int        `bigquery:"volume"`
+	Turnover  int        `bigquery:"turnover"`
+	PE        float64    `bigquery:"pe"`
+	PB        float64    `bigquery:"pb"`
+	YieldPct  float64    `bigquery:"yieldpct"`
+	MarketCap int        `bigquery:"marketcap"`
 }
 
 func main() {
 	// fmt.Println("main")
 
-	records, err := GetRecords("stock")
+	records, err := GetRecords("industry")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 	fmt.Println(len(records))
+	// fmt.Println(PrettyPrint(records))
 
 	err = bulkInsert(records, 500)
 	if err != nil {
@@ -59,8 +63,8 @@ func GetConnection() (*sql.DB, error) {
 	return db, nil
 }
 
-func GetRecords(table string) ([]HistoricalPrice, error) {
-	var records []HistoricalPrice
+func GetRecords(table string) ([]Industry, error) {
+	var records []Industry
 	db, err := GetConnection()
 	defer db.Close()
 	if err != nil {
@@ -69,7 +73,6 @@ func GetRecords(table string) ([]HistoricalPrice, error) {
 	queryF := `
     SELECT *
     FROM %s
-    WHERE date >= '2017-01-01' and date < '2018-01-01'
 `
 
 	query := fmt.Sprintf(queryF, table)
@@ -82,13 +85,11 @@ func GetRecords(table string) ([]HistoricalPrice, error) {
 
 	for rows.Next() {
 		var (
-			r        HistoricalPrice
-			date     time.Time
-			id       int
-			volume   float64
-			turnover float64
+			r    Industry
+			date time.Time
+			id   int
 		)
-		err = rows.Scan(&id, &date, &r.Ask, &r.Bid, &r.Open, &r.High, &r.Low, &r.Close, &volume, &turnover, &r.CodeF)
+		err = rows.Scan(&id, &date, &r.Sector, &r.Industry, &r.CodeF, &r.Close, &r.Change, &r.ChangePct, &r.Volume, &r.Turnover, &r.PE, &r.PB, &r.YieldPct, &r.MarketCap)
 		if err != nil {
 			return records, err
 		}
@@ -96,8 +97,7 @@ func GetRecords(table string) ([]HistoricalPrice, error) {
 		d := civil.DateOf(date.Round(0))
 		r.Date = d
 		r.Code, _ = convertCode(r.CodeF)
-		r.Turnover = int(turnover)
-		r.Volume = int(volume)
+
 		records = append(records, r)
 	}
 
@@ -138,8 +138,8 @@ func PrettyPrint(i interface{}) string {
 	return string(s)
 }
 
-func chunkStruct(items []HistoricalPrice, chunkSize int) ([][]HistoricalPrice, error) {
-	var chunks [][]HistoricalPrice
+func chunkStruct(items []Industry, chunkSize int) ([][]Industry, error) {
+	var chunks [][]Industry
 
 	if len(items) == 0 {
 		return chunks, fmt.Errorf("Empty input")
@@ -154,17 +154,8 @@ func chunkStruct(items []HistoricalPrice, chunkSize int) ([][]HistoricalPrice, e
 	return chunks, nil
 }
 
-func chunkSlice(items []int, chunkSize int) [][]int {
-	var chunks [][]int
-	for chunkSize < len(items) {
-		chunks = append(chunks, items[0:chunkSize])
-		items = items[chunkSize:]
-	}
-	return append(chunks, items)
-}
-
 // bulkInsert breaks the list into smaller chunks, and insert into bigquery
-func bulkInsert(records []HistoricalPrice, size int) error {
+func bulkInsert(records []Industry, size int) error {
 	chunks, err := chunkStruct(records, size)
 	if err != nil {
 		return err
@@ -183,7 +174,7 @@ func bulkInsert(records []HistoricalPrice, size int) error {
 }
 
 // insertRows demonstrates inserting data into a table using the streaming insert mechanism.
-func insertRows(records []HistoricalPrice) error {
+func insertRows(records []Industry) error {
 
 	ctx := context.Background()
 	client, err := bigquery.NewClient(ctx, "stock-lib")
@@ -192,9 +183,9 @@ func insertRows(records []HistoricalPrice) error {
 	}
 	defer client.Close()
 
-	inserter := client.Dataset("stock").Table("past_stock").Inserter()
+	inserter := client.Dataset("stock").Table("industry").Inserter()
 
-	var items []*HistoricalPrice
+	var items []*Industry
 	for i := range records {
 		items = append(items, &records[i])
 	}
