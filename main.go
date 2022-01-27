@@ -33,10 +33,30 @@ type Industry struct {
 	MarketCap int        `bigquery:"marketcap"`
 }
 
+type Option struct {
+	Date        civil.Date `bigquery:"date"`
+	Code        int        `bigquery:"code"`
+	CodeF       string     `bigquery:"codef"`
+	OptionName  string     `bigquery:"optionname"`
+	OptionDesc  string     `bigquery:"optiondesc"`
+	OptionDate  civil.Date `bigquery:"optiondate"`
+	Strike      float64    `bigquery:"strike"`
+	Contract    string     `bigquery:"contract"`
+	Open        float64    `bigquery:"open"`
+	High        float64    `bigquery:"hight"`
+	Low         float64    `bigquery:"low"`
+	Settle      float64    `bigquery:"settle"`
+	DeltaSettle float64    `bigquery:"deltasettle"`
+	IV          int        `bigquery:"iv"`
+	Volume      int        `bigquery:"volume"`
+	OI          int        `bigquery:"oi"`
+	DeltaOI     int        `bigquery:"deltaoi"`
+}
+
 func main() {
 	// fmt.Println("main")
 
-	records, err := GetRecords("industry")
+	records, err := GetRecords("option")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -63,8 +83,8 @@ func GetConnection() (*sql.DB, error) {
 	return db, nil
 }
 
-func GetRecords(table string) ([]Industry, error) {
-	var records []Industry
+func GetRecords(table string) ([]Option, error) {
+	var records []Option
 	db, err := GetConnection()
 	defer db.Close()
 	if err != nil {
@@ -73,6 +93,8 @@ func GetRecords(table string) ([]Industry, error) {
 	queryF := `
     SELECT *
     FROM %s
+    WHERE date >= "2019-01-01" and date < '2020-01-01'
+    LIMIT 10
 `
 
 	query := fmt.Sprintf(queryF, table)
@@ -85,18 +107,21 @@ func GetRecords(table string) ([]Industry, error) {
 
 	for rows.Next() {
 		var (
-			r    Industry
-			date time.Time
-			id   int
+			r      Option
+			date   time.Time
+			opdate time.Time // option date
+			id     int
 		)
-		err = rows.Scan(&id, &date, &r.Sector, &r.Industry, &r.CodeF, &r.Close, &r.Change, &r.ChangePct, &r.Volume, &r.Turnover, &r.PE, &r.PB, &r.YieldPct, &r.MarketCap)
+		err = rows.Scan(&id, &date, &r.Code, &r.OptionName, &r.OptionDesc, &opdate, &r.Strike, &r.Contract, &r.Open, &r.High, &r.Low, &r.Settle, &r.DeltaSettle, &r.IV, &r.Volume, &r.OI, &r.DeltaOI)
 		if err != nil {
 			return records, err
 		}
 		_ = id
 		d := civil.DateOf(date.Round(0))
+		od := civil.DateOf(opdate.Round(0))
 		r.Date = d
-		r.Code, _ = convertCode(r.CodeF)
+		r.OptionDate = od
+		r.CodeF, _ = convertCodeF(r.Code)
 
 		records = append(records, r)
 	}
@@ -138,8 +163,8 @@ func PrettyPrint(i interface{}) string {
 	return string(s)
 }
 
-func chunkStruct(items []Industry, chunkSize int) ([][]Industry, error) {
-	var chunks [][]Industry
+func chunkStruct(items []Option, chunkSize int) ([][]Option, error) {
+	var chunks [][]Option
 
 	if len(items) == 0 {
 		return chunks, fmt.Errorf("Empty input")
@@ -155,7 +180,7 @@ func chunkStruct(items []Industry, chunkSize int) ([][]Industry, error) {
 }
 
 // bulkInsert breaks the list into smaller chunks, and insert into bigquery
-func bulkInsert(records []Industry, size int) error {
+func bulkInsert(records []Option, size int) error {
 	chunks, err := chunkStruct(records, size)
 	if err != nil {
 		return err
@@ -174,7 +199,7 @@ func bulkInsert(records []Industry, size int) error {
 }
 
 // insertRows demonstrates inserting data into a table using the streaming insert mechanism.
-func insertRows(records []Industry) error {
+func insertRows(records []Option) error {
 
 	ctx := context.Background()
 	client, err := bigquery.NewClient(ctx, "stock-lib")
@@ -185,7 +210,7 @@ func insertRows(records []Industry) error {
 
 	inserter := client.Dataset("stock").Table("industry").Inserter()
 
-	var items []*Industry
+	var items []*Option
 	for i := range records {
 		items = append(items, &records[i])
 	}
@@ -208,4 +233,14 @@ func convertCode(s string) (int, error) {
 	}
 
 	return i, nil
+}
+
+func convertCodeF(in int) (string, error) {
+
+	if in == 0 {
+		return "", fmt.Errorf("Zero code")
+	}
+
+	s := strings.Sprintf("%05d", in)
+	return s, nil
 }
