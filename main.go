@@ -69,7 +69,7 @@ func GetRecords(table string) ([]HistoricalPrice, error) {
 	queryF := `
     SELECT *
     FROM %s
-    WHERE date >= '2016-01-01' and date < '2017-01-01'
+    WHERE date >= '2017-01-01' and date < '2018-01-01'
 `
 
 	query := fmt.Sprintf(queryF, table)
@@ -192,7 +192,7 @@ func insertRows(records []HistoricalPrice) error {
 	}
 	defer client.Close()
 
-	inserter := client.Dataset("stock").Table("stock").Inserter()
+	inserter := client.Dataset("stock").Table("past_stock").Inserter()
 
 	var items []*HistoricalPrice
 	for i := range records {
