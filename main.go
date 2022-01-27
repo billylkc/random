@@ -141,6 +141,22 @@ func PrettyPrint(i interface{}) string {
 	return string(s)
 }
 
+func chunkStruct(items []HistoricalPrice, chunkSize int) ([][]HistoricalPrice, error) {
+	var chunks [][]HistoricalPrice
+
+	if len(items) == 0 {
+		return chunks, fmt.Errorf("Empty input")
+	}
+
+	for chunkSize < len(items) {
+		chunks = append(chunks, items[0:chunkSize])
+		items = items[chunkSize:]
+	}
+	chunks = append(chunks, items)
+
+	return chunks, nil
+}
+
 func chunkSlice(items []int, chunkSize int) [][]int {
 	var chunks [][]int
 	for chunkSize < len(items) {
@@ -149,12 +165,19 @@ func chunkSlice(items []int, chunkSize int) [][]int {
 	}
 	return append(chunks, items)
 }
+
 func makeRange(min, max int) []int {
 	a := make([]int, max-min+1)
 	for i := range a {
 		a[i] = min + i
 	}
 	return a
+}
+
+// bulkInsert breaks the list into smaller chunks, and insert into bigquery
+func bulkInsert(records []HistoricalPrice, size int) ([][]HistoricalPrice, error) {
+	chunks, err := chunkStruct(records, 100)
+	return chunks, err
 }
 
 // insertRows demonstrates inserting data into a table using the streaming insert mechanism.
