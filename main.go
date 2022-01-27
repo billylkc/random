@@ -30,10 +30,26 @@ type HistoricalPrice struct {
 	Turnover int        `bigquery:"turnover"`
 }
 
+type Sector struct {
+	Date        civil.Date `bigquery:"date"`
+	Sector      string     `bigquery:"sector"`
+	ChangePct   float64    `bigquery:"changepct"`
+	PChangePct  float64    `bigquery:"pchangepct"`
+	Turnover    int        `bigquery:"turnover"`
+	AvgTurnover int        `bigquery:"avgturnover"`
+	AvgPE       float64    `bigquery:"avgpe"`
+	ZoneA       int        `bigquery:"zonea"`
+	ZoneB       int        `bigquery:"zoneb"`
+	ZoneC       int        `bigquery:"zonec"`
+	ZoneD       int        `bigquery:"zoned"`
+	ZoneE       int        `bigquery:"zonee"`
+	ZoneN       int        `bigquery:"zonen"`
+}
+
 func main() {
 	// fmt.Println("main")
 
-	records, err := GetRecords("stock")
+	records, err := GetRecords("sector")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -59,8 +75,8 @@ func GetConnection() (*sql.DB, error) {
 	return db, nil
 }
 
-func GetRecords(table string) ([]HistoricalPrice, error) {
-	var records []HistoricalPrice
+func GetRecords(table string) ([]Sector, error) {
+	var records []Sector
 	db, err := GetConnection()
 	defer db.Close()
 	if err != nil {
@@ -69,7 +85,6 @@ func GetRecords(table string) ([]HistoricalPrice, error) {
 	queryF := `
     SELECT *
     FROM %s
-    WHERE date >= '2017-01-01' and date < '2018-01-01'
 `
 
 	query := fmt.Sprintf(queryF, table)
@@ -82,22 +97,18 @@ func GetRecords(table string) ([]HistoricalPrice, error) {
 
 	for rows.Next() {
 		var (
-			r        HistoricalPrice
-			date     time.Time
-			id       int
-			volume   float64
-			turnover float64
+			r    Sector
+			date time.Time
+			id   int
 		)
-		err = rows.Scan(&id, &date, &r.Ask, &r.Bid, &r.Open, &r.High, &r.Low, &r.Close, &volume, &turnover, &r.CodeF)
+		err = rows.Scan(&id, &date, &r.Sector, &r.ChangePct, &r.PChangePct, &r.Turnover, &r.AvgTurnover, &r.AvgPE, &r.ZoneA, &r.ZoneB, &r.ZoneC, &r.ZoneD, &r.ZoneE, &r.ZoneN)
 		if err != nil {
 			return records, err
 		}
 		_ = id
 		d := civil.DateOf(date.Round(0))
 		r.Date = d
-		r.Code, _ = convertCode(r.CodeF)
-		r.Turnover = int(turnover)
-		r.Volume = int(volume)
+
 		records = append(records, r)
 	}
 
@@ -138,8 +149,8 @@ func PrettyPrint(i interface{}) string {
 	return string(s)
 }
 
-func chunkStruct(items []HistoricalPrice, chunkSize int) ([][]HistoricalPrice, error) {
-	var chunks [][]HistoricalPrice
+func chunkStruct(items []Sector, chunkSize int) ([][]Sector, error) {
+	var chunks [][]Sector
 
 	if len(items) == 0 {
 		return chunks, fmt.Errorf("Empty input")
@@ -164,7 +175,7 @@ func chunkSlice(items []int, chunkSize int) [][]int {
 }
 
 // bulkInsert breaks the list into smaller chunks, and insert into bigquery
-func bulkInsert(records []HistoricalPrice, size int) error {
+func bulkInsert(records []Sector, size int) error {
 	chunks, err := chunkStruct(records, size)
 	if err != nil {
 		return err
@@ -183,7 +194,7 @@ func bulkInsert(records []HistoricalPrice, size int) error {
 }
 
 // insertRows demonstrates inserting data into a table using the streaming insert mechanism.
-func insertRows(records []HistoricalPrice) error {
+func insertRows(records []Sector) error {
 
 	ctx := context.Background()
 	client, err := bigquery.NewClient(ctx, "stock-lib")
@@ -192,9 +203,9 @@ func insertRows(records []HistoricalPrice) error {
 	}
 	defer client.Close()
 
-	inserter := client.Dataset("stock").Table("past_stock").Inserter()
+	inserter := client.Dataset("stock").Table("sector").Inserter()
 
-	var items []*HistoricalPrice
+	var items []*Sector
 	for i := range records {
 		items = append(items, &records[i])
 	}
