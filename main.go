@@ -39,13 +39,10 @@ func main() {
 	}
 	fmt.Println(len(records))
 
-	chunks := chunkSlice(records, 500)
-	fmt.Println(chunks)
-
-	// err = insertRows(records)
-	// if err != nil {
-	// 	fmt.Println(err.Error())
-	// }
+	err = bulkInsert(records, 500)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 
 }
 
@@ -72,7 +69,7 @@ func GetRecords(table string) ([]HistoricalPrice, error) {
 	queryF := `
     SELECT *
     FROM %s
-    WHERE date >= '2021-01-01' and date < '2021-02-01'
+    WHERE date >= '2016-01-01' and date < '2017-01-01'
 `
 
 	query := fmt.Sprintf(queryF, table)
@@ -168,16 +165,18 @@ func chunkSlice(items []int, chunkSize int) [][]int {
 
 // bulkInsert breaks the list into smaller chunks, and insert into bigquery
 func bulkInsert(records []HistoricalPrice, size int) error {
-	chunks, err := chunkStruct(records, 100)
+	chunks, err := chunkStruct(records, size)
 	if err != nil {
 		return err
 	}
 
-	for _, chunk := range chunks {
+	n := len(chunks)
+	for i, chunk := range chunks {
 		err = insertRows(chunk)
 		if err != nil {
 			fmt.Println(err.Error())
 		}
+		fmt.Printf("Finished loop - %d/%d \n", i, n)
 
 	}
 	return err
@@ -193,7 +192,7 @@ func insertRows(records []HistoricalPrice) error {
 	}
 	defer client.Close()
 
-	inserter := client.Dataset("stock").Table("test").Inserter()
+	inserter := client.Dataset("stock").Table("stock").Inserter()
 
 	var items []*HistoricalPrice
 	for i := range records {
