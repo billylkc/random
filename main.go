@@ -33,20 +33,20 @@ type HistoricalPrice struct {
 func main() {
 	// fmt.Println("main")
 
-	// records, err := GetRecords("stock")
-	// if err != nil {
-	// 	fmt.Println(err.Error())
-	// }
-	// fmt.Println(len(records))
+	records, err := GetRecords("stock")
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	fmt.Println(len(records))
+
+	chunks := chunkSlice(records, 500)
+	fmt.Println(chunks)
 
 	// err = insertRows(records)
 	// if err != nil {
 	// 	fmt.Println(err.Error())
 	// }
 
-	in := makeRange(1, 29)
-	res := chunkSlice(in, 100)
-	fmt.Println(res)
 }
 
 func GetConnection() (*sql.DB, error) {
@@ -72,7 +72,7 @@ func GetRecords(table string) ([]HistoricalPrice, error) {
 	queryF := `
     SELECT *
     FROM %s
-    WHERE date >= '2021-01-01' and date < '2022-01-01'
+    WHERE date >= '2021-01-01' and date < '2021-02-01'
 `
 
 	query := fmt.Sprintf(queryF, table)
@@ -166,18 +166,21 @@ func chunkSlice(items []int, chunkSize int) [][]int {
 	return append(chunks, items)
 }
 
-func makeRange(min, max int) []int {
-	a := make([]int, max-min+1)
-	for i := range a {
-		a[i] = min + i
-	}
-	return a
-}
-
 // bulkInsert breaks the list into smaller chunks, and insert into bigquery
-func bulkInsert(records []HistoricalPrice, size int) ([][]HistoricalPrice, error) {
+func bulkInsert(records []HistoricalPrice, size int) error {
 	chunks, err := chunkStruct(records, 100)
-	return chunks, err
+	if err != nil {
+		return err
+	}
+
+	for _, chunk := range chunks {
+		err = insertRows(chunk)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+
+	}
+	return err
 }
 
 // insertRows demonstrates inserting data into a table using the streaming insert mechanism.
@@ -190,7 +193,7 @@ func insertRows(records []HistoricalPrice) error {
 	}
 	defer client.Close()
 
-	inserter := client.Dataset("stock").Table("stock").Inserter()
+	inserter := client.Dataset("stock").Table("test").Inserter()
 
 	var items []*HistoricalPrice
 	for i := range records {
