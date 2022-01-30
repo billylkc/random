@@ -43,7 +43,7 @@ type Option struct {
 	Strike      float64    `bigquery:"strike"`
 	Contract    string     `bigquery:"contract"`
 	Open        float64    `bigquery:"open"`
-	High        float64    `bigquery:"hight"`
+	High        float64    `bigquery:"high"`
 	Low         float64    `bigquery:"low"`
 	Settle      float64    `bigquery:"settle"`
 	DeltaSettle float64    `bigquery:"deltasettle"`
@@ -56,35 +56,17 @@ type Option struct {
 func main() {
 	// fmt.Println("main")
 
-	// records, err := GetRecords("option")
-	// if err != nil {
-	// 	fmt.Println(err.Error())
-	// }
-	// // fmt.Println(len(records))
-	// fmt.Println(PrettyPrint(records))
-
-	test()
-
-	// err = bulkInsert(records, 500)
-	// if err != nil {
-	// 	fmt.Println(err.Error())
-	// }
-
-}
-
-func test() {
-	u := []uint8{}
-	// i64, err := cast.Int64(u)
-	// if err != nil {
-	// 	fmt.Println(err.Error())
-	// }
-
-	uu := fmt.Sprintf(string(u))
-	i, err := strconv.Atoi(uu)
+	records, err := GetRecords("option")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	fmt.Println(i)
+	fmt.Println(len(records))
+	// fmt.Println(PrettyPrint(records))
+
+	err = bulkInsert(records, 500)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 
 }
 
@@ -111,8 +93,7 @@ func GetRecords(table string) ([]Option, error) {
 	queryF := `
     SELECT *
     FROM %s
-    WHERE date >= '2019-01-01' and date < '2020-01-01'
-    LIMIT 10
+    WHERE date >= '2022-01-01' and date < '2023-01-01'
 `
 
 	query := fmt.Sprintf(queryF, table)
@@ -226,7 +207,7 @@ func insertRows(records []Option) error {
 	}
 	defer client.Close()
 
-	inserter := client.Dataset("stock").Table("industry").Inserter()
+	inserter := client.Dataset("stock").Table("option").Inserter()
 
 	var items []*Option
 	for i := range records {
