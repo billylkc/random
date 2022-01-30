@@ -56,17 +56,35 @@ type Option struct {
 func main() {
 	// fmt.Println("main")
 
-	records, err := GetRecords("option")
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	fmt.Println(len(records))
+	// records, err := GetRecords("option")
+	// if err != nil {
+	// 	fmt.Println(err.Error())
+	// }
+	// // fmt.Println(len(records))
 	// fmt.Println(PrettyPrint(records))
 
-	err = bulkInsert(records, 500)
+	test()
+
+	// err = bulkInsert(records, 500)
+	// if err != nil {
+	// 	fmt.Println(err.Error())
+	// }
+
+}
+
+func test() {
+	u := []uint8{}
+	// i64, err := cast.Int64(u)
+	// if err != nil {
+	// 	fmt.Println(err.Error())
+	// }
+
+	uu := fmt.Sprintf(string(u))
+	i, err := strconv.Atoi(uu)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
+	fmt.Println(i)
 
 }
 
@@ -93,7 +111,7 @@ func GetRecords(table string) ([]Option, error) {
 	queryF := `
     SELECT *
     FROM %s
-    WHERE date >= "2019-01-01" and date < '2020-01-01'
+    WHERE date >= '2019-01-01' and date < '2020-01-01'
     LIMIT 10
 `
 
@@ -241,6 +259,6 @@ func convertCodeF(in int) (string, error) {
 		return "", fmt.Errorf("Zero code")
 	}
 
-	s := strings.Sprintf("%05d", in)
+	s := fmt.Sprintf("%05d", in)
 	return s, nil
 }
