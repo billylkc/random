@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -159,7 +160,7 @@ func New() Quandl {
 	}
 }
 
-func gen(nums ...int) <-chan int {
+func send(nums ...int) <-chan int {
 	out := make(chan int)
 	go func() {
 		for _, n := range nums {
@@ -170,7 +171,7 @@ func gen(nums ...int) <-chan int {
 	return out
 }
 
-func sq(in <-chan int) <-chan []HistoricalPrice {
+func process(done <-chan bool, in <-chan int) <-chan []HistoricalPrice {
 	out := make(chan []HistoricalPrice)
 	go func() {
 		for n := range in {
@@ -182,7 +183,7 @@ func sq(in <-chan int) <-chan []HistoricalPrice {
 	return out
 }
 
-func merge(cs ...<-chan []HistoricalPrice) <-chan []HistoricalPrice {
+func merge(done <-chan bool, cs ...<-chan []HistoricalPrice) <-chan []HistoricalPrice {
 	var wg sync.WaitGroup
 	out := make(chan []HistoricalPrice)
 
@@ -319,11 +320,11 @@ func setEndDate(settings string) option {
 }
 
 func main() {
-	// in := gen(2, 3)
+	// in := send(2, 3)
 
 	// // Distribute the sq work across two goroutines that both read from in.
-	// c1 := sq(in)
-	// c2 := sq(in)
+	// c1 := process(in)
+	// c2 := process(in)
 
 	// // Consume the merged output from c1 and c2.
 	// for n := range merge(c1, c2) {
@@ -337,6 +338,36 @@ func main() {
 
 	fmt.Printf("Getting date - %s - %d \n\n", date, len(companies))
 	fmt.Println(companies[0:10])
+
+}
+
+func GetAllStocks(data ...int) []HistoricalPrice {
+	var res []HistoricalPrice
+	numWorkers := 5
+
+	done := make(chan bool)
+	defer close(done)
+
+	// Send data
+	in := send(data...)
+
+	// Start workers to process the data
+	workers := make([]<-chan []HistoricalPrice, numWorkers)
+	for i := 0; i < len(workers); i++ {
+		workers[i] = process(done, in)
+	}
+
+	// Merge all channels, and sort
+	var result []HistoricalPrice
+
+	for n := range merge(done, workers...) {
+		result = append(result, n...)
+	}
+	sort.SliceStable(result, func(i, j int) bool {
+		return result[i].Code < result[j].Code
+	})
+
+	return res
 
 }
 
