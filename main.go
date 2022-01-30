@@ -16,6 +16,16 @@ import (
 	_ "github.com/lib/pq"
 )
 
+type CCASS struct {
+	Date            civil.Date `bigquery:"date"`
+	ParticipantCode string     `bigquery:"participantcode"`
+	Participant     string     `bigquery:"participant"`
+	Number          int        `bigquery:"number"`
+	Code            int        `bigquery:"code"`
+	CodeF           string     `bigquery:"codef"`
+	Percentage      float64    `bigquery:"percentage"`
+}
+
 type Industry struct {
 	Date      civil.Date `bigquery:"date"`
 	Sector    string     `bigquery:"sector"`
@@ -56,17 +66,17 @@ type Option struct {
 func main() {
 	// fmt.Println("main")
 
-	records, err := GetRecords("option")
+	records, err := GetRecords("ccass")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 	fmt.Println(len(records))
-	// fmt.Println(PrettyPrint(records))
+	fmt.Println(PrettyPrint(records))
 
-	err = bulkInsert(records, 500)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
+	// err = bulkInsert(records, 500)
+	// if err != nil {
+	// 	fmt.Println(err.Error())
+	// }
 
 }
 
@@ -83,8 +93,8 @@ func GetConnection() (*sql.DB, error) {
 	return db, nil
 }
 
-func GetRecords(table string) ([]Option, error) {
-	var records []Option
+func GetRecords(table string) ([]CCASS, error) {
+	var records []CCASS
 	db, err := GetConnection()
 	defer db.Close()
 	if err != nil {
@@ -93,7 +103,8 @@ func GetRecords(table string) ([]Option, error) {
 	queryF := `
     SELECT *
     FROM %s
-    WHERE date >= '2022-01-01' and date < '2023-01-01'
+    WHERE date >= '2019-04-01' and date < '2019-05-01'
+    LIMIT 100
 `
 
 	query := fmt.Sprintf(queryF, table)
@@ -106,21 +117,19 @@ func GetRecords(table string) ([]Option, error) {
 
 	for rows.Next() {
 		var (
-			r      Option
-			date   time.Time
-			opdate time.Time // option date
-			id     int
+			r           CCASS
+			date        time.Time
+			participant sql.NullString
+			id          int
 		)
-		err = rows.Scan(&id, &date, &r.Code, &r.OptionName, &r.OptionDesc, &opdate, &r.Strike, &r.Contract, &r.Open, &r.High, &r.Low, &r.Settle, &r.DeltaSettle, &r.IV, &r.Volume, &r.OI, &r.DeltaOI)
+		err = rows.Scan(&id, &r.ParticipantCode, &participant, &r.Number, &r.CodeF, &date, &r.Percentage)
 		if err != nil {
 			return records, err
 		}
 		_ = id
 		d := civil.DateOf(date.Round(0))
-		od := civil.DateOf(opdate.Round(0))
 		r.Date = d
-		r.OptionDate = od
-		r.CodeF, _ = convertCodeF(r.Code)
+		r.Code, _ = convertCode(r.CodeF)
 
 		records = append(records, r)
 	}
@@ -162,8 +171,8 @@ func PrettyPrint(i interface{}) string {
 	return string(s)
 }
 
-func chunkStruct(items []Option, chunkSize int) ([][]Option, error) {
-	var chunks [][]Option
+func chunkStruct(items []CCASS, chunkSize int) ([][]CCASS, error) {
+	var chunks [][]CCASS
 
 	if len(items) == 0 {
 		return chunks, fmt.Errorf("Empty input")
@@ -179,7 +188,7 @@ func chunkStruct(items []Option, chunkSize int) ([][]Option, error) {
 }
 
 // bulkInsert breaks the list into smaller chunks, and insert into bigquery
-func bulkInsert(records []Option, size int) error {
+func bulkInsert(records []CCASS, size int) error {
 	chunks, err := chunkStruct(records, size)
 	if err != nil {
 		return err
@@ -198,7 +207,7 @@ func bulkInsert(records []Option, size int) error {
 }
 
 // insertRows demonstrates inserting data into a table using the streaming insert mechanism.
-func insertRows(records []Option) error {
+func insertRows(records []CCASS) error {
 
 	ctx := context.Background()
 	client, err := bigquery.NewClient(ctx, "stock-lib")
@@ -207,9 +216,9 @@ func insertRows(records []Option) error {
 	}
 	defer client.Close()
 
-	inserter := client.Dataset("stock").Table("option").Inserter()
+	inserter := client.Dataset("stock").Table("ccass").Inserter()
 
-	var items []*Option
+	var items []*CCASS
 	for i := range records {
 		items = append(items, &records[i])
 	}
