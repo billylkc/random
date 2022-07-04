@@ -1,0 +1,399 @@
+#+STARTUP: showeverything
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+HTML_HEAD: <style> #content {background: #fcfcfc; height: 100%; margin-left: 300px; min-height: 100%; max-width: 3500px;} tbody tr:nth-child(even) td, tbody tr.even td {background:none;}</style>
+#+HTML_HEAD: <style> span.crimson{color: crimson;} span.darkblue{color: DarkBlue;}</style>
+#+HTML_HEAD: <style> .padded {padding: 0 0 20px 0;} </style>
+#+HTML_HEAD: <style> table tr:nth-child(even) td {background: transparent;} </style>
+#+HTML_HEAD: <style> table tr:nth-child(odd) td {background: transparent;} </style>
+#+TITLE: Data Science Journeys
+
+\\
+\\
+\\
+
+
+* Overview
+#+BEGIN_EXPORT html
+<ul style="list-style-type:disc">
+  <li class="padded"> Who am I </li>
+  <li class="padded"> Questions </li>
+  <li class="padded"> Types of Data Scientist </li>
+  <li class="padded"> Project/Product mind set </li>
+  <li class="padded"> Hard Skills </li>
+  <li class="padded"> Python</li>
+  <li class="padded"> Mathematics </li>
+  <li class="padded"> Metrics </li>
+  <li class="padded"> Modeling </li>
+  <li class="padded"> DevOps </li>
+  <li class="padded"> Architecture </li>
+  <li class="padded"> Concept </li>
+  <li class="padded"> Possible Journey </li>
+</ul>
+
+#+END_EXPORT
+
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+
+
+* Who am I
+
+\\
+\\
+\\
+
+** Education Background
+
+\\
+\\
+
+#+BEGIN_EXPORT html
+HKUST - Bachelor of Business Administration <b>(Information System + Business Statistics)</b>
+#+END_EXPORT
+
+\\
+
+#+BEGIN_EXPORT html
+<b><u>Skills (Undergraduate)</u></b><br/><br/>
+
+<ul style="list-style-type:disc">
+  <li class="padded"> Database Management </li>
+  <li class="padded"> Strong Statistics Background (4-5 courses) - Distribution, Bayesian statistics, Regression, Modeling, Simulation </li>
+  <li class="padded"> Java (1 courses) - Object Oriented Programming (OOP)) </li>
+  <li class="padded"> R (2 courses) - Modeling, Data Manipulation, EDA, Plotting </li>
+  <li class="padded"> FYP - php education system (moodle like)</li>
+</ul>
+
+
+#+END_EXPORT
+
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+
+
+#+BEGIN_EXPORT html
+<br/><br/><br/>
+#+END_EXPORT
+
+** Working Experience
+
+\\
+\\
+
+|-------------------------------+-----------------------------------+-----------+-----------------------------------------------------------|
+| Title                         | Company                           | Tenure    | Lessons Learned                                           |
+|-------------------------------+-----------------------------------+-----------+-----------------------------------------------------------|
+| CRM Intern                    | HSBC                              |           | UAT/Prod, shell script for deployment (Automation)        |
+|                               |                                   |           |                                                           |
+| Web Developer                 | Local Startup, Freelance          | 2 years   |                                                           |
+| Working holiday               | Australia                         | 2.5 years |                                                           |
+|                               |                                   |           |                                                           |
+| Data Analyst                  | Internet Security Consulting Firm | 2 Year    | Networking, Linux, Shell Scripting                        |
+| Senior Data Analyst           | Cigna Insurance (Group level)     | 1 Year    | Propensity Model, GA, CLV, Deck                           |
+| Data Science Lead (4 people)  | A.S. Watsons (Group level)        | 3.5 years | Architecture, Devops (Work flow), Model Monitoring        |
+| Data Science Lead (11 people) | HKTV Mall                         | Current   | Strategy, Recommendation, Develop team, real time, etc,.. |
+|-------------------------------+-----------------------------------+-----------+-----------------------------------------------------------|
+
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+
+** Cloud Certificate
+
+Google packed 10+ years of cloud experience
+
+- GCP Credential Holder Directory
+  - [[https://googlecloudcertified.credential.net/?location=Hong%20Kong&lat=22.3192011&lng=114.1696121&groups=68262&groups=68191][Link]]
+
+- GCP Professional Data Engineer
+  - Individual GCP Service/components
+  - Cloud Function (Lambda), PubSub, BigQuery (Redshift)
+
+- GCP Professional Data Architect
+  - Enterprise solution. Architectural design
+  - e.g. What cloud components would you choose when Building Pokemon Go?
+  - e.g. What are the constraints or benefits (pros and cons) of choosing certain tech stacks?
+
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+
+** How I started
+
+\\
+\\
+
+*** Summer course
+
+
+**Visiting professor** from US (Summer Course).   Learn R.   Concept and Application Focused.
+
+- Supervised / Unsupervised
+  - Supervised (*With target variable*, e.g. Weekly Demand, House Price, etc,..)
+  - Unsupervised (*Without target variable*, e.g. Clustering, Dimension Reduction, etc..)
+
+- Regression (Numeric) / Classification (Categorical) / +Reinforcement Learning+
+  - *ML Concepts*
+    - Data handling (Missing values, Manipulation (Long to wide), etc,..)
+    - train/test/validation split
+    - k-fold validation, Leave one out cross validation
+    - Loss function (Minimize, Maximize something), F1 score (Accuracy vs Usefulness)
+    - Over-fitting
+  - *Unsupervised*
+    - kmeans
+    - tf-idf
+    - Principle Component Analysis (PCA)
+  - *Regression*
+    - Linear Regression
+    - ARIMA (Time Series)
+  - *Classification*
+    - Logistic Regression
+    - Support Vector Machine
+    - tree-based model, Decision tree
+  - *Others*
+    - Neural Network
+  - *Simulation*
+    - Monte Carlo Simulation
+
+- Application focused
+  - *Regression* - Predict wine price
+  - *Classification* - Email spamming
+  - *tf-idf* - Extract keywords from text paragraph
+  - *Simulation* - How many cashier is needed for friday
+
+- Reproducible Code in R
+
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+
+*** Background
+
+- *OOP Concept*
+  - Encapsulation
+  - Inheritance
+  - Polymorphism
+  - Reference - [[https://www.c-sharpcorner.com/UploadFile/mkagrahari/introduction-to-object-oriented-programming-concepts-in-C-Sharp/][Link]]
+
+- *Database and System design*
+  - System Design - [[https://www.google.com/imgres?imgurl=https%3A%2F%2Fwww.theinsaneapp.com%2Fwp-content%2Fuploads%2F2022%2F01%2FUber-System-Design-1024x585.webp&imgrefurl=https%3A%2F%2Fwww.theinsaneapp.com%2F2021%2F03%2Fsystem-design-and-recommendation-algorithms.html&tbnid=QYb4azMJB5-MeM&vet=12ahUKEwjjxbKeuNz4AhUKDt4KHRYYBkYQMygGegUIARC4AQ..i&docid=Uh3vPUdINXnOEM&w=1024&h=585&q=system%20design%20recommendation%20system&ved=2ahUKEwjjxbKeuNz4AhUKDt4KHRYYBkYQMygGegUIARC4AQ][Link]]
+  - ERD
+  - 3rd Normal Form
+
+- *Statistical Concept*
+  - When to use what chart
+  - Different distributions (Gamma distribution, beta distribution, etc,..)
+  - biases (Cognition biases, Selection biases, etc,..)
+
+- *Project Management*
+  - From
+  - Gantt chart
+  - Critical path, early start, late start - [[https://www.google.com/search?q=critical+path+method+early+start+late+start&tbm=isch&ved=2ahUKEwjRrYT7pdz4AhUoEqYKHStZAaoQ2-cCegQIABAA&oq=critical+path+method+early+start+late+start&gs_lcp=CgNpbWcQAzIECAAQGDoFCAAQgAQ6BggAEB4QCFCmFFj8MGDnNGgAcAB4AIABOogBnguSAQIzMpgBAKABAaoBC2d3cy13aXotaW1nwAEB&sclient=img&ei=plLBYtHCDqikmAWrsoXQCg&bih=761&biw=1550][Link]]
+
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+
+*** Reselling Camera
+
+Always interested in how I can link the statistical tools I learned to *personal projects*.
+
+- Learned *tf-idf* (Extract keywords from sentence/paragraph)
+- *Identify project* (problem statement) with end user
+  - buy/sell price for second-hand cameras in yahoo auction (Time consuming)
+  - No grouping for certain models (Instant Camera, Kodak PIXPRO, etc,..), features (單鏡反光), etc,..
+  - Use tf-idf + semi-automate -> stop words, filtering/sorting (e.g. model, features,)
+- Simple Front-end
+  - R Shiny (Dashboard)
+
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+
+* Questions
+
+\\
+\\
+
+** Question one
+
+*Q:* Advice for Non engineering background?
+
+*Answer*
+- Focus on *delivery* and not modeling (Application focused. To be covered.)
+  - Dashboard
+  - API
+  - etc,..
+- *Quantify* and Measuring uplift
+  - Conversion up by x% (comparing to control group), which translate to x money
+- Small data flavor to other team
+  - Team up with money related department. e.g. Marketing, Finance, etc,..
+  - Automate some tasks
+- Dont use jupyter notebook
+  - Invest in your editor, sharpen your tools.
+- Dont be afraid of Linux or command line program
+  - Try first
+- Learn to *push projects*
+  - Make assumption. Calculate ROI.
+    - Say email campaign.
+    - The model can increase open rate by 50%. You can always derive the ROI from that.
+  - Tell me what values the solution can bring.
+  - Explain limitation
+  - Dont treat DS solution as a black box. Guide the user through your *thought process* or steps.
+
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+
+** Question Two
+
+*Q:* How Spark and Hadoop integrate with Python?
+
+*Answer*:
+- Usually Spark(Batch) and Hadoop (or HBase) are used to save and *aggregate data*, and once the dataset is small enough to fit in memory. We will *use Python for modelling*.
+
+#+BEGIN_SRC python
+
+# pyspark Dataframe to python dataframe
+
+import pyspark
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder.appName('SparkByExamples.com').getOrCreate()
+
+data = [("James","","Smith","36636","M",60000),
+        ("Michael","Rose","","40288","M",70000),
+        ("Robert","","Williams","42114","",400000),
+        ("Maria","Anne","Jones","39192","F",500000),
+        ("Jen","Mary","Brown","","F",0)]
+
+columns = ["first_name","middle_name","last_name","dob","gender","salary"]
+pysparkDF = spark.createDataFrame(data = data, schema = columns)
+pysparkDF.printSchema()
+pysparkDF.show(truncate=False)
+
+pandasDF = pysparkDF.toPandas()
+
+#+END_SRC
+
+- Think of some transaction data (say 20 billion rows), we can always aggregated to daily level sales, etc,..
+- Then we can use python for prediction
+
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+
+*Q:* Learn Program or other program first or do project first?
+
+*Answer*:
+- Always Project first.
+- Find something you can see *progress*. Say what you can see/achieve (in terms of objectives) in two weeks/one month.
+  - Can be object detection (e.g. using yolo)
+  - Can be slack/telegram bot
+  - Can be web scraping
+  - etc,..
+- *Dont limit yourself to Data Science Project only*. Sometimes it takes time to do a proper DS project.
+- Read from any source (Medium, Youtube, Paper, LinkedIn, Github, etc,..) that you find interesting, and match it with your own idea or work related project.
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+
+** Question Three
+*Q:* Path to Analytics
+
+*Answer*:
+Covered in Who am I sessino.
+
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+
+*Q:* Things to say to my younger self.
+
+*Answer*:
+I dont like this question.
+
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+
+** Question Four
+
+*Q*: what are the motive and reasons for Self learn and Projects?
+
+*Answer*:
+TBA
+
+\\
+\\
+\\
+\\
+\\
+\\
+\\
